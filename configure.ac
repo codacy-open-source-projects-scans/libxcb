@@ -12,7 +12,7 @@ AC_CONFIG_HEADERS([src/config.h])
 
 # Initialize Automake
 AM_INIT_AUTOMAKE([foreign dist-xz])
-AM_PATH_PYTHON([3.0])
+AM_PATH_PYTHON([3.6])
 
 # Set common system defines for POSIX extensions, such as _GNU_SOURCE
 # Must be called before any macros that run the compiler (like AC_PROG_LIBTOOL)
@@ -143,9 +143,6 @@ case $host_os in
 mingw*)
         have_win32="yes"
         lt_enable_auto_import="-Wl,--enable-auto-import"
-        ;;
-linux*)
-        AC_DEFINE([HAVE_ABSTRACT_SOCKETS], 1, [Define if your platform supports abstract sockets])
         ;;
 esac
 

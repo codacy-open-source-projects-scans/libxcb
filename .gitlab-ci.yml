@@ -4,7 +4,7 @@
 # Please see the ci-templates documentation for details:
 # https://freedesktop.pages.freedesktop.org/ci-templates/
 
-.templates_sha: &template_sha b791bd48996e3ced9ca13f1c5ee82be8540b8adb # see https://docs.gitlab.com/ee/ci/yaml/#includefile
+.templates_sha: &template_sha aec7a6ce7bb38902c70641526f6611e27141784a # see https://docs.gitlab.com/ee/ci/yaml/#includefile
 
 
 include:
@@ -31,7 +31,7 @@ variables:
   # The tag should be updated each time the list of packages is updated.
   # Changing a tag forces the associated image to be rebuilt.
   # Note: the tag has no meaning, we use a date format purely for readability
-  FDO_DISTRIBUTION_TAG:  '2023-08-21.0'
+  FDO_DISTRIBUTION_TAG:  '2025-08-30.0'
   FDO_DISTRIBUTION_PACKAGES:  'git gcc pkgconf autoconf automake libtool make xorg-util-macros python doxygen graphviz check libxslt libxau libxdmcp'
 
 
@@ -51,22 +51,6 @@ check-commits:
   artifacts:
     reports:
       junit: results.xml
-
-#
-# Verify that the merge request has the allow-collaboration checkbox ticked
-#
-check-merge-request:
-  extends:
-    - .fdo.ci-fairy
-  stage: deploy
-  script:
-    - ci-fairy check-merge-request --require-allow-collaboration --junit-xml=results.xml
-  artifacts:
-    when: on_failure
-    reports:
-      junit: results.xml
-  allow_failure: true
-
 
 #
 # Build a container with the given tag and the packages pre-installed.

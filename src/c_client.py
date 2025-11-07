@@ -986,13 +986,13 @@ def _c_get_field_mapping_for_expr(self, expr, prefix):
         tmp_prefix = prefix
         if len(tmp_prefix)==0:
             raise Exception("found an empty prefix while resolving expr field names for list %s",
-                            field.c_field_name)
+                            self)
 
         field_mapping.update(_c_helper_resolve_field_names(prefix))
         resolved += [x for x in unresolved if x in field_mapping]
         unresolved = [x for x in unresolved if x not in field_mapping]
         if len(unresolved)>0:
-            raise Exception('could not resolve the length fields required for list %s' % field.c_field_name)
+            raise Exception('could not resolve the length fields required for list %s' % self)
 
     return field_mapping
 
@@ -1920,7 +1920,18 @@ def _c_accessors_list(self, field):
         if switch_obj is not None:
             _c('    return %s;', fields[field.c_field_name][0])
         elif field.prev_varsized_field is None:
-            _c('    return (%s *) (R + 1);', field.c_field_type)
+            if R_obj.is_reply:
+                prev_field = None
+                for f in R_obj.fields:
+                    if f == field:
+                        break
+                    prev_field = f
+                # utilize the previous field and its number of elements to index past the end of the reply
+                # e.g. if the final field is uint8_t pad[2], generate &R->pad + 2
+                # e.g. if the final field is uint16_t len, generate &R->len + 1
+                _c('    return (%s *) (&R->%s + %d);', field.c_field_type, prev_field.c_field_name, prev_field.type.nmemb)
+            else:
+                _c('    return (%s *) (R + 1);', field.c_field_type)
         else:
             (prev_varsized_field, align_pad) = get_align_pad(field)
 
@@ -2660,14 +2671,14 @@ def _man_request(self, name, void, aux):
         name = 'man/%s.%s' % (linkname, section)
         if manpaths:
             sys.stdout.write(name)
-        f = open(name, 'w')
+        f = open(name, 'w', encoding='UTF-8')
         f.write('.so man%s/%s.%s' % (section, func_name, section))
         f.close()
 
     if manpaths:
         sys.stdout.write('man/%s.%s ' % (func_name, section))
     # Our CWD is src/, so this will end up in src/man/
-    f = open('man/%s.%s' % (func_name, section), 'w')
+    f = open('man/%s.%s' % (func_name, section), 'w', encoding='UTF-8')
     f.write('.TH %s %s  "%s" "%s" "XCB Requests"\n' % (func_name, section, center_footer, left_footer))
     # Left-adjust instead of adjusting to both sides
     f.write('.ad l\n')
@@ -3035,7 +3046,7 @@ def _man_event(self, name):
     if manpaths:
         sys.stdout.write('man/%s.%s ' % (self.c_type, section))
     # Our CWD is src/, so this will end up in src/man/
-    f = open('man/%s.%s' % (self.c_type, section), 'w')
+    f = open('man/%s.%s' % (self.c_type, section), 'w', encoding='UTF-8')
     f.write('.TH %s %s  "%s" "%s" "XCB Events"\n' % (self.c_type, section, center_footer, left_footer))
     # Left-adjust instead of adjusting to both sides
     f.write('.ad l\n')
@@ -3187,8 +3198,8 @@ def c_request(self, name):
         _c_request_helper(self, name, void=False, regular=True, aux=False, reply_fds=has_fds)
         _c_request_helper(self, name, void=False, regular=False, aux=False, reply_fds=has_fds)
         if self.c_need_aux:
-            _c_request_helper(self, name, void=False, regular=True, aux=True, reply_fs=has_fds)
-            _c_request_helper(self, name, void=False, regular=False, aux=True, reply_fs=has_fds)
+            _c_request_helper(self, name, void=False, regular=True, aux=True, reply_fds=has_fds)
+            _c_request_helper(self, name, void=False, regular=False, aux=True, reply_fds=has_fds)
         # Reply accessors
         _c_accessors(self.reply, name + ('reply',), name)
         _c_reply(self, name)

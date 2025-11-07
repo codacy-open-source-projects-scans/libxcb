@@ -34,6 +34,8 @@
 #include "config.h"
 #endif
 
+#include <stddef.h> /* for offsetof() definition */
+
 #ifdef GCC_HAS_VISIBILITY
 #pragma GCC visibility push(hidden)
 #endif
@@ -64,10 +66,6 @@ enum lazy_reply_tag
 #define XCB_PAD(i) (-(i) & 3)
 
 #define XCB_SEQUENCE_COMPARE(a,op,b)    ((int64_t) ((a) - (b)) op 0)
-
-#ifndef offsetof
-#define offsetof(type,member) ((size_t) &((type *)0)->member)
-#endif
 
 #ifndef MIN
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
@@ -225,6 +223,7 @@ struct xcb_connection_t {
 
 void _xcb_conn_shutdown(xcb_connection_t *c, int err);
 
+XCB_CONST_FUNCTION
 xcb_connection_t *_xcb_conn_ret_error(int err);
 
 int _xcb_conn_wait(xcb_connection_t *c, pthread_cond_t *cond, struct iovec **vector, int *count);
