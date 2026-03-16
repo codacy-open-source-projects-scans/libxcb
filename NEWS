@@ -417,7 +417,7 @@ of XCB 1.0.
   xcb_generate_id part of the client API rather than the extension API,
   so move xcb_generate_id from xcbext.h to xcb.h.
 
-* Remove the 'int *error' out-parameter for xcb_poll_for_event. 
+* Remove the 'int *error' out-parameter for xcb_poll_for_event.
   xcb_poll_for_event now shuts down the xcb_connection_t on fatal
   errors; use xcb_connection_has_error to check.
 

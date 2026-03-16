@@ -1,5 +1,5 @@
 body
-{ 
+{
   background-color: #dddddd;
   color: #000000;
   padding: 8px;
@@ -66,7 +66,7 @@ div.comp div.xlib ul li
   font-weight: bold;
   position: absolute;
   width: 49%;
-  margin-left: 0px; 
+  margin-left: 0px;
   margin-top: 10px;
 }
 div.comp div.xcb ul li

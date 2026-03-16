@@ -1,7 +1,7 @@
 ########################
 ## tests/Makefile.am
 ########################
-SUBDIRS = 
+SUBDIRS =
 EXTRA_DIST = CheckLog.xsl
 AM_MAKEFLAGS = -k
 AM_CFLAGS = -Wall -Werror @CHECK_CFLAGS@ -I$(top_srcdir)/src
