@@ -93,6 +93,7 @@ int xcb_sumof(uint8_t *list, int len)
   return s;
 }
 
+#ifndef _WIN32
 /* Return true and parse if name matches <path to socket>[.<screen>]
  * Upon success:
  *     host = <path to socket>
@@ -156,6 +157,7 @@ static int _xcb_parse_display_path_to_socket(const char *name, char **host, char
 
     return 1;
 }
+#endif __WIN32
 
 static int _xcb_parse_display(const char *name, char **host, char **protocol,
                       int *displayp, int *screenp)
@@ -168,12 +170,14 @@ static int _xcb_parse_display(const char *name, char **host, char **protocol,
     if(!name)
         return 0;
 
+#ifndef _WIN32
     /* First check for <path to socket>[.<screen>] */
     if (name[0] == '/')
         return _xcb_parse_display_path_to_socket(name, host, protocol, displayp, screenp);
 
     if (strncmp(name, "unix:", 5) == 0)
         return _xcb_parse_display_path_to_socket(name + 5, host, protocol, displayp, screenp);
+#endif
 
     slash = strrchr(name, '/');
 
@@ -245,6 +249,7 @@ static int _xcb_open_unix(char *protocol, const char *file);
 
 static int _xcb_open(const char *host, char *protocol, const int display)
 {
+#ifndef _WIN32
     int fd;
 #ifdef __hpux
     static const char unix_base[] = "/usr/spool/sockets/X11/";
@@ -255,7 +260,6 @@ static int _xcb_open(const char *host, char *protocol, const int display)
     size_t filelen;
     char *file = NULL;
 
-#ifndef _WIN32
     if (protocol && strcmp("unix", protocol) == 0 && host && host[0] == '/') {
         /* Full path to socket provided, ignore everything else */
         filelen = strlen(host) + 1;
@@ -266,7 +270,8 @@ static int _xcb_open(const char *host, char *protocol, const int display)
             return -1;
         memcpy(file, host, filelen);
     } else {
-#endif
+#endif /* _WIN32 */
+
         /* If protocol or host is "unix", fall through to Unix socket code below */
         if ((!protocol || (strcmp("unix",protocol) != 0)) &&
             (*host != '\0') && (strcmp("unix",host) != 0))
