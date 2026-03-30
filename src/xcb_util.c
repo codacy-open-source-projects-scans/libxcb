@@ -157,7 +157,7 @@ static int _xcb_parse_display_path_to_socket(const char *name, char **host, char
 
     return 1;
 }
-#endif __WIN32
+#endif /* __WIN32 */
 
 static int _xcb_parse_display(const char *name, char **host, char **protocol,
                       int *displayp, int *screenp)
